@@ -33,7 +33,7 @@ class RoutesController < ApplicationController
     @route = Route.find(params[:id])
     @route.destroy
 
-    redirect_to @routes
+    redirect_to routes_path
   end
 
   def update
@@ -48,6 +48,6 @@ class RoutesController < ApplicationController
 
   private
     def route_params
-      params.require(:route).permit(:name, points_attributes: [:lat, :long, :order, :id])
+      params.require(:route).permit(:name, :id, :_destroy, points_attributes: [:lat, :long, :order, :id, :_destroy])
     end
 end
