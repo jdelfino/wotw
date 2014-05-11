@@ -11,14 +11,14 @@
 </div>
 <% end %>
 
-<p>
+<p class="fields">
   <%= f.label :name %>: <%= f.text_field :name %>
 </p>
 <%= f.fields_for :points do |builder| %>
-  <%= builder.label :lat, "Latitude" %>: <%= builder.text_field :lat  %><br />
-  <%= builder.label :long, "Longitude" %>: <%= builder.text_field :long  %><br />
-  <%#= render "point_fields", :f => builder %>
+ <%= render "point_fields", :f => builder %>
 <% end %>
+
+<p><%= link_to_add_fields "Add Point", f, :points %></p>
 
 <p><%= f.submit "Submit" %></p>
 

@@ -21,6 +21,21 @@ class RoutesController < ApplicationController
     @route = Route.find(params[:id])
   end
 
+  def index
+    @routes = Route.all
+  end
+
+  def edit
+    @route = Route.find(params[:id])
+  end
+
+  def destroy
+    @route = Route.find(params[:id])
+    @route.destroy
+
+    redirect_to routes_path
+  end
+
   private
     def route_params
       params.require(:route).permit(:name, points_attributes: [:lat, :long])

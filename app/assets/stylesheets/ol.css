@@ -1,4 +1,4 @@
 #map {
-  height: 60%;
+  height: 600px;  /* wish i understood why this can't be %age */
   width: 60%;
 }
