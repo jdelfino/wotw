@@ -1,4 +1,20 @@
-<body>
-  <div id="map" style="position: absolute; top: 0; left: 0;"> </div> <!-- style="width: 600px; height:
-  300px"></div> -->
-</body>
+
+<% title "Routes" %>
+
+<table>
+  <tr>
+    <th>Name</th>
+  </tr>
+  <% for route in @routes %>
+    <tr>
+      <td><%=h route.name %></td>
+      <td><%= link_to "Show",route %></td>
+      <td><%= link_to "Edit", edit_route_path(route) %></td>
+      <td><%= link_to "Destroy",route, :confirm => 'Are you sure?', :method => :delete %></td>
+    </tr>
+  <% end %>
+</table>
+
+<p><%= link_to "New Route", new_route_path %></p>
+
+<div id="map" style="position: absolute; top: 0; left: 0;"> </div>
