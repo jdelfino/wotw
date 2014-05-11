@@ -1,0 +1,21 @@
+<% title "Survey" %>
+
+<p>
+  <strong>Name:</strong>
+  <%=h @route.name %>
+</p>
+
+<ol>
+<% for point in @route.points %>
+  <li>
+    <%=h point.lat %>
+  </li>
+  <li>
+    <%=h point.long %>
+  </li>
+<% end %>
+</ol>
+
+<p>
+ <%= link_to "View All", routes_path %>
+</p>
