@@ -33,11 +33,21 @@ class RoutesController < ApplicationController
     @route = Route.find(params[:id])
     @route.destroy
 
-    redirect_to routes_path
+    redirect_to @routes
+  end
+
+  def update
+    @route = Route.find(params[:id])
+    
+    if @route.update(route_params)
+      redirect_to @route
+    else
+      render 'edit'
+    end
   end
 
   private
     def route_params
-      params.require(:route).permit(:name, points_attributes: [:lat, :long])
+      params.require(:route).permit(:name, points_attributes: [:lat, :long, :order, :id])
     end
 end

@@ -5,13 +5,9 @@
   <%=h @route.name %>
 </p>
 
-<ol>
 <% for point in @route.points %>
-  <li>
-    Lat: <%=h point.lat %>, Long: <%=h point.long %>
-  </li>
+<%= point.order %>. Lat: <%=h point.lat %>, Long: <%=h point.long %> <br/>
 <% end %>
-</ol>
 
 <p>
  <%= link_to "View All", routes_path %>

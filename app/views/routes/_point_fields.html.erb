@@ -1,3 +1,4 @@
 <p>
-  <%= f.label :lat, "Latitude" %>: <%= f.text_field :lat  %> <%= f.label :long, "Longitude" %>: <%= f.text_field :long  %> <%= link_to_remove_fields "remove", f %><br />
+  <%= f.hidden_field :order, value: f.index %>
+  <%= f.label :lat, "Latitude" %>: <%= f.text_field :lat  %> <%= f.label :long, "Longitude" %>: <%= f.text_field :long  %> <%= f.link_to_remove "remove" %><br />
 </p>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140511203759) do
+ActiveRecord::Schema.define(version: 20140511233859) do
 
   create_table "points", force: true do |t|
     t.decimal  "lat"
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20140511203759) do
     t.datetime "updated_at"
   end
 
+  add_index "points", ["route_id", "order"], name: "index_points_on_route_id_and_order"
   add_index "points", ["route_id"], name: "index_points_on_route_id"
 
   create_table "routes", force: true do |t|
