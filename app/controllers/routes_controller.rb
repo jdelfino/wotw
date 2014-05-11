@@ -4,11 +4,11 @@ class RoutesController < ApplicationController
     3.times do
       point = @route.points.build
     end
-    puts @route.inspect
   end
 
   def create
     @route = Route.new(route_params)
+    puts @route.inspect
     if @route.save
       flash[:notice] = "Successfully created route."
       redirect_to @route
@@ -23,6 +23,6 @@ class RoutesController < ApplicationController
 
   private
     def route_params
-      params.require(:route).permit(:name, point_attributes: [:lat, :long])
+      params.require(:route).permit(:name, points_attributes: [:lat, :long])
     end
 end

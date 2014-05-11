@@ -8,10 +8,7 @@
 <ol>
 <% for point in @route.points %>
   <li>
-    <%=h point.lat %>
-  </li>
-  <li>
-    <%=h point.long %>
+    Lat: <%=h point.lat %>, Long: <%=h point.long %>
   </li>
 <% end %>
 </ol>
