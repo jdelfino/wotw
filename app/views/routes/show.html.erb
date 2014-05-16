@@ -1,5 +1,9 @@
 <% title "Survey" %>
 
+<%= content_tag "div", class: "points", data: {points: @route.points} do %>
+
+<div id="map"> </div>
+
 <p>
   <strong>Name:</strong>
   <%=h @route.name %>
@@ -9,6 +13,10 @@
 <%= point.order %>. Lat: <%=h point.lat %>, Long: <%=h point.long %> <br/>
 <% end %>
 
+
 <p>
- <%= link_to "View All", routes_path %>
+<%= link_to "Edit", edit_route_path(@route) %></br>
+<%= link_to "View All", routes_path %>
 </p>
+
+<% end %>
