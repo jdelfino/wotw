@@ -20,21 +20,21 @@ x
 <%= point.order %>. Lat: <%=h point.lat %>, Long: <%=h point.long %> <br/>
 <% end %>
 
+<p>
+<%= link_to "Edit", edit_route_path(@route) %></br>
+<%= link_to "View All", routes_path %>
+</p>
+
 <table id="poi_table">
   <thead>
     <tr>
       <th>Name</th>
-      <th>Type</th>
+      <th>Tags</th>
       <th>Distance</th>
     </tr>
   </thead>
   <tbody>
   </tbody>
 </table>
-
-<p>
-<%= link_to "Edit", edit_route_path(@route) %></br>
-<%= link_to "View All", routes_path %>
-</p>
 
 <% end %>

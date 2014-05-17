@@ -16,3 +16,4 @@
 //= require_tree .
 //= require openlayers-rails
 //= require jquery_nested_form
+//= require dataTables/jquery.dataTables
