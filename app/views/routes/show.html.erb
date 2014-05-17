@@ -1,3 +1,9 @@
+<!-- TODO: this is almost certainly not the best way to get this lib loaded -->
+
+<script type="text/javascript"
+	src="https://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true_or_false">
+</script>
+x
 <% title "Survey" %>
 
 <!-- TODO: compress? -->
@@ -14,6 +20,17 @@
 <%= point.order %>. Lat: <%=h point.lat %>, Long: <%=h point.long %> <br/>
 <% end %>
 
+<table id="poi_table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Distance</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
 
 <p>
 <%= link_to "Edit", edit_route_path(@route) %></br>
