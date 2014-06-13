@@ -3,11 +3,11 @@ var projection_wgs;
 var projection_smp;
 var position;
 var polyline; // TODO: better name
-var TOLERANCE = 1/11100*10; // 100 meters (111km ~= 1 degree)
+var TOLERANCE = 1/1110; // 100 meters (111km ~= 1 degree)
 var markers;
 
 // TODO: really, most of this work should be done on the server via a controller,
-// rather than pushing it to the client
+// rather than pushing it to the client. 
 
 function distance_down_path(point, polypath) {
     var path = polypath.getPath(), len = path.getLength(), dist = 0;
@@ -17,11 +17,9 @@ function distance_down_path(point, polypath) {
 	var segment = new google.maps.Polyline({path: [curpoint, nextpoint]});
 	if(google.maps.geometry.poly.isLocationOnEdge(point, segment, TOLERANCE)) {
 	    dist += google.maps.geometry.spherical.computeDistanceBetween(curpoint, point);
-	    //console.log("Dist is now " + dist);
 	    break;
 	} else {
 	    dist += google.maps.geometry.spherical.computeDistanceBetween(curpoint, nextpoint);
-	    //console.log("Dist (2) is now " + dist);
 	}
     } 
     return dist.toFixed(2); 
@@ -51,14 +49,10 @@ function addMarker(ll, popupContentHTML) {
     marker.events.register("mousedown", feature, markerClick);
     
     markers.addMarker(marker);
-    //markers.addMarker(new OpenLayers.Marker(ll));
-    console.log(markers);
-    console.log("marker added");
 }
 
 function display_pois(data, textStatus, jqXHR) {
     var nodes = data['elements'];
-    console.log("FOUND " + nodes.length);
     for(var i = 0; i < nodes.length; i++) {
 	var pt = new google.maps.LatLng(nodes[i]['lat'], nodes[i]['lon']);
 	var tags = ""
@@ -70,6 +64,10 @@ function display_pois(data, textStatus, jqXHR) {
 	    }
 	}
 
+	// note that this is super inefficient. we fetch a square bounding box
+	// from the OSM api, then post filter on the client to POIs close to
+	// our route. would be better to smartly construct a polygon and use that,
+	// but no easy way to create that polygon
 	if(google.maps.geometry.poly.isLocationOnEdge(pt, polyline, TOLERANCE)) { // 10 meter tolerance
 	    $("#poi_table").append(
 		"<tr><th>" + nodes[i]['tags']['name'] + "</th>" +
