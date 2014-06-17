@@ -150,7 +150,17 @@ function display_pois(data, textStatus, jqXHR) {
 
 // == On DOM Ready events =====================================================
 
-$(function() {
+$(".routes.show").ready(function() {
+    console.log("ROUTES SHOW");
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&callback=initialize';
+    document.body.appendChild(script);
+});
+
+function initialize() {
+    console.log("INITIALIZE");
+//$(".routes.show").ready(function() {
 
     // Define variables for OpenLayers
     var center_lat  = '38.575076';      // Sacramento CA latitude
@@ -252,5 +262,5 @@ $(function() {
 	$(".movable_map").animate({'padding-top': padding}, 25, "swing");
 
     });
-});
+};
  
