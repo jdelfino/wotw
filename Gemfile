@@ -41,3 +41,4 @@ gem 'spring',        group: :development
 gem 'openlayers-rails'
 gem 'nested_form'
 gem 'jquery-datatables-rails'
+gem 'purecss-rails'

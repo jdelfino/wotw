@@ -1,5 +1,6 @@
 #map {
-  height: 600px;  /* wish i understood why this can't be %age */
-  width: 90%;
-  margin: 0 auto;
+  height: 600px;   /* wish i understood why this can't be %age */
+  max-width: none;
+ /* width: 50%; */
+/*  margin: 0 auto; */
 }

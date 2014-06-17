@@ -3,8 +3,10 @@ var projection_wgs;
 var projection_smp;
 var position;
 var polyline; // TODO: better name
-var TOLERANCE = 1/1110; // 100 meters (111km ~= 1 degree)
+var TOLERANCE = 2/1110; // 200 meters (111km ~= 1 degree)
 var markers;
+var markerlist={};
+var lastfeature;
 
 // TODO: really, most of this work should be done on the server via a controller,
 // rather than pushing it to the client. 
@@ -25,74 +27,110 @@ function distance_down_path(point, polypath) {
     return dist.toFixed(2); 
 }
 
+function hideAllOtherPopups(popup) {
+    for(var i = 0; i < map.popups.length; i++){
+	if(map.popups[i] != popup){
+	    map.popups[i].hide();
+	}
+    }
+}
+
+function togglePopup(feature){
+    hideAllOtherPopups(feature.popup);
+
+    if (feature.popup == null) {
+        feature.popup = feature.createPopup(true);
+        map.addPopup(feature.popup);
+        feature.popup.show();
+    } else {
+        feature.popup.toggle();
+    }
+}
+
 function addMarker(ll, popupContentHTML) {
 
     var feature = new OpenLayers.Feature(markers, ll); 
-    feature.closeBox = true;
     feature.popupClass = OpenLayers.Class(OpenLayers.Popup.Anchored, {'autoSize': true});
     feature.data.popupContentHTML = popupContentHTML;
     feature.data.overflow = "auto";
-    
+
     var marker = feature.createMarker();
     
     var markerClick = function (evt) {
-        if (this.popup == null) {
-            this.popup = this.createPopup(this.closeBox);
-            map.addPopup(this.popup);
-            this.popup.show();
-        } else {
-            this.popup.toggle();
-        }
-        currentPopup = this.popup;
+	togglePopup(this);
         OpenLayers.Event.stop(evt);
     };
     marker.events.register("mousedown", feature, markerClick);
     
     markers.addMarker(marker);
+    return feature
 }
 
 function display_pois(data, textStatus, jqXHR) {
     var nodes = data['elements'];
+    var pois = []
+
     for(var i = 0; i < nodes.length; i++) {
 	var pt = new google.maps.LatLng(nodes[i]['lat'], nodes[i]['lon']);
-	var tags = ""
-	for(var tag in nodes[i]['tags']){
-	    if(tag.indexOf(':') == -1 && tag != "name" && tag != "ele") {
-		var key = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, " ");
-		var val = nodes[i]['tags'][tag].replace(/_/g, " ");
-		tags += key + ": " + val + "<br/>";
+	if(google.maps.geometry.poly.isLocationOnEdge(pt, polyline, TOLERANCE)) {
+	    var tags = ""
+	    for(var tag in nodes[i]['tags']){
+		if(tag == 'website') {
+		    tags += "<a href=" + nodes[i]['tags'][tag] + '">Website</a><br/>';
+		}
+		else if(tag.indexOf(':') == -1 && tag != "name" && tag != "ele") {
+		    var key = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, " ");
+		    var val = nodes[i]['tags'][tag].replace(/_/g, " ");
+		    tags += key + ": " + val + "<br/>";
+		}
 	    }
-	}
-
-	// note that this is super inefficient. we fetch a square bounding box
-	// from the OSM api, then post filter on the client to POIs close to
-	// our route. would be better to smartly construct a polygon and use that,
-	// but no easy way to create that polygon
-	if(google.maps.geometry.poly.isLocationOnEdge(pt, polyline, TOLERANCE)) { // 10 meter tolerance
-	    $("#poi_table").append(
-		"<tr><th>" + nodes[i]['tags']['name'] + "</th>" +
-		    "<th>" + tags + "</th>" +
-		    "<th>" + distance_down_path(pt, polyline) + "</th>"
-	    );
-
-	    addMarker(
-		new OpenLayers.LonLat(nodes[i]['lon'], nodes[i]['lat'])
-		    .transform(
-			projection_wgs, // transform from WGS 1984
-			projection_smp // to Spherical Mercator Projection
-		    ),
-		nodes[i]['tags']['name']);
-
+	    pois.push({"pt":pt, 
+		       "distance": parseInt(distance_down_path(pt, polyline)), 
+		       "tags": tags, 
+		       "name": nodes[i]['tags']['name'].trim()});
 	}
     }
-    // use pretty datatable
-    $("#poi_table").dataTable({
-	"columns": [
-	    null,
-	    null,
-	    { "type": "numeric" }
-	]
+
+    pois.sort(function(a,b) { 
+	if(a['distance'] < b['distance']) {
+	    return -1;
+	} else if(a['distance'] > b['distance']) {
+	    return 1;
+	}
+	return 0;
     });
+
+    for(var i = 0; i < pois.length; i++) {
+	var feature = 
+	    addMarker(new OpenLayers.LonLat(pois[i]['pt'].lng(), pois[i]['pt'].lat())
+		      .transform(
+			  projection_wgs, // transform from WGS 1984
+			  projection_smp // to Spherical Mercator Projection
+		      ),
+		      pois[i]['name']);
+
+	$("<tr><td>" + pois[i]['name'] + "</td>" +
+	  "<td>" + tags + "</td>" +
+	  "<td>" + pois[i]['distance'] + "</td>"
+	 ).appendTo("#poi_table"
+	 ).hover(
+	     function() { this.inflate(1.2);
+			  this.icon.setUrl('http://www.openlayers.org/dev/img/marker-green.png');
+			  // bring this marker to the front
+			  this.erase(); 
+			  markers.redraw();
+			}.bind(feature.marker),
+	     function() { this.inflate(1/1.2); 
+			  this.icon.setUrl('http://www.openlayers.org/dev/img/marker.png');
+			}.bind(feature.marker) 
+	 ).click(
+	     function() { togglePopup(this);
+			  map.setCenter(this.marker.lonlat)}.bind(feature)
+	 );
+	
+    }
+    $("#poi_table tbody > tr:odd").addClass('pure-table-odd')
+
 }
 
 // == On DOM Ready events =====================================================
@@ -157,10 +195,10 @@ $(function() {
 	map.setCenter(position, zoom);      // Set center of map
     }
     
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
     markers = new OpenLayers.Layer.Markers("Markers");
     map.addLayer(markers);
-
+    scalebar = new OpenLayers.Control.ScaleLine();
+    map.addControl(scalebar);
     // populate POIs
 
     var overpass_base_url = "http://overpass-api.de/api/interpreter?data=[out:json];";
@@ -177,5 +215,26 @@ $(function() {
     });
     // TODO: error callback
 
+
+    $(window).scroll(function (e) {
+	var vertical_position = 0;
+	if (pageYOffset)//usual
+	    vertical_position = pageYOffset;
+	else if (document.documentElement.clientHeight)//ie
+	    vertical_position = document.documentElement.scrollTop;
+	else if (document.body)//ie quirks
+	    vertical_position = document.body.scrollTop;
+	
+	div_offset = $("#poi_table").offset().top
+	map_offset = $("#map").offset().top
+
+	desired_padding = vertical_position - div_offset + 25; //fudge
+	max_padding = $("#poi_table").height() - $("#map").height()
+	min_padding = 16; //1em
+	padding = Math.max(Math.min(desired_padding, max_padding), min_padding)
+
+	$(".movable_map").animate({'padding-top': padding}, 25, "swing");
+
+    });
 });
  

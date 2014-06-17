@@ -1,40 +1,77 @@
-<!-- TODO: this is almost certainly not the best way to get this lib loaded -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
+ <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+<![endif]-->
+<!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+<!--<![endif]-->
+
+
+<!-- TODO: this is almost certainly not the best way to get this lib loaded -->
 <script type="text/javascript"
 	src="https://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=true_or_false">
 </script>
-x
-<% title "Survey" %>
 
 <!-- TODO: compress? -->
 <%= content_tag "div", class: "points", data: {points: @route.points} do %>
 
-<div id="map"> </div>
+<% title "Survey" %>
 
-<p>
-  <strong>Name:</strong>
-  <%=h @route.name %>
-</p>
+<div class="header">
+    <h1>What's on the Way?</h1>
 
-<% for point in @route.points %>
-<%= point.order %>. Lat: <%=h point.lat %>, Long: <%=h point.long %> <br/>
+  
+    <h2>Displaying your route and POIs nearby</h2>
+  
+</div>
+
+<div class="content">
+
+<div class="pure-g">
+  <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-1-2 l-box movable_map">
+    <div id="map"></div>
+  </div>
+
+  <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-1-2 l-box">
+    <table id="poi_table" class="pure-table
+				 pure-table-bordered poi-table">
+      <thead>
+	<tr>
+	  <th>Name</th>
+	  <th>Tags</th>
+	  <th>Distance</th>
+	</tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-1-4">
+    <p>
+      <strong>Name:</strong>
+      <%=h @route.name %>&nbsp;&nbsp;<%= link_to "Edit", edit_route_path(@route) %>
+    </p>
+    <table id="points-table" class="pure-table pure-table-bordered pure-table-striped">
+      <thead>
+	<tr><th>Latitude</th><th>Longitude</th></tr>
+      </thead>
+      <tbody>
+	<% for point in @route.points %>
+	<tr><td><%=h point.lat %></td><td><%=h point.long %></td></tr>
+	<% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <%= link_to "Back to all routes", routes_path %>
+</div>
+
 <% end %>
 
-<p>
-<%= link_to "Edit", edit_route_path(@route) %></br>
-<%= link_to "View All", routes_path %>
-</p>
 
-<table id="poi_table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Tags</th>
-      <th>Distance</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
-<% end %>
