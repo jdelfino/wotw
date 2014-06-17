@@ -66,6 +66,10 @@ function addMarker(ll, popupContentHTML) {
     return feature
 }
 
+function clean_tag(tag){
+    return tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, " ");
+}
+
 function display_pois(data, textStatus, jqXHR) {
     var nodes = data['elements'];
     var pois = []
@@ -74,19 +78,26 @@ function display_pois(data, textStatus, jqXHR) {
 	var pt = new google.maps.LatLng(nodes[i]['lat'], nodes[i]['lon']);
 	if(google.maps.geometry.poly.isLocationOnEdge(pt, polyline, TOLERANCE)) {
 	    var tags = ""
+	    var type = ""
 	    for(var tag in nodes[i]['tags']){
 		if(tag == 'website') {
 		    tags += "<a href=" + nodes[i]['tags'][tag] + '">Website</a><br/>';
-		}
-		else if(tag.indexOf(':') == -1 && tag != "name" && tag != "ele") {
+		} else if(tag == 'amenity') {
+		    type = clean_tag(nodes[i]['tags'][tag])
+		} else if(tag == 'bus' && nodes[i]['tags'][tag] == 'yes') {
+		    type = "Bus"
+		} else if(tag == 'railway' || tag == 'tourism') {
+		    type = clean_tag(nodes[i]['tags'][tag])
+		} else if(tag.indexOf(':') == -1 && tag != "name" && tag != "ele") {
 		    var key = tag.charAt(0).toUpperCase() + tag.slice(1).replace(/_/g, " ");
-		    var val = nodes[i]['tags'][tag].replace(/_/g, " ");
+		    var val = clean_tag(nodes[i]['tags'][tag]);
 		    tags += key + ": " + val + "<br/>";
 		}
 	    }
 	    pois.push({"pt":pt, 
 		       "distance": parseInt(distance_down_path(pt, polyline)), 
-		       "tags": tags, 
+		       "type": type,
+		       "tags": tags,
 		       "name": nodes[i]['tags']['name'].trim()});
 	}
     }
@@ -109,10 +120,14 @@ function display_pois(data, textStatus, jqXHR) {
 		      ),
 		      pois[i]['name']);
 
-	$("<tr><td>" + pois[i]['name'] + "</td>" +
-	  "<td>" + tags + "</td>" +
-	  "<td>" + pois[i]['distance'] + "</td>"
-	 ).appendTo("#poi_table"
+	var row = "<tr><td>" + pois[i]['name'] + "</td><td>";
+	if(pois[i]['type']) {
+	    row += "<b>" + pois[i]['type'] + '</b><br/>'
+	}
+	row += pois[i]['tags'] + "</td>" +
+	    "<td>" + pois[i]['distance'] + "</td>"
+
+	$(row).appendTo("#poi_table"
 	 ).hover(
 	     function() { this.inflate(1.2);
 			  this.icon.setUrl('http://www.openlayers.org/dev/img/marker-green.png');
@@ -136,6 +151,7 @@ function display_pois(data, textStatus, jqXHR) {
 // == On DOM Ready events =====================================================
 
 $(function() {
+
     // Define variables for OpenLayers
     var center_lat  = '38.575076';      // Sacramento CA latitude
     var center_lng  = '-121.487761';    // Sacramento CA longitude

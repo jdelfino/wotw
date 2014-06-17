@@ -1,4 +1,4 @@
-<%= nested_form_for @route do |f| %>
+<%= nested_form_for @route, html: {class: "pure-form"} do |f| %>
 
 <% if @route.errors.any? %>
 <div id="error_explanation">
